@@ -1,0 +1,14 @@
+---
+- name: Include distribuition specific variables
+  include_vars: "{{ ansible_distribution | lower }}.yml"
+
+- name: Creating docker user
+  user: name=docker
+
+- name: Install python-pip and dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ pip_packages }}"
+
+- include: tunning.yml
