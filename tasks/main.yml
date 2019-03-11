@@ -5,10 +5,19 @@
 - name: Creating docker user
   user: name=docker
 
-- name: Install python-pip and dependencies
+- name: Install pip and dependencies
   package:
     name: "{{ item }}"
     state: present
   with_items: "{{ pip_packages }}"
+
+- name: Install docker-py pip package
+  pip:
+    name: "docker-py"
+    state: "present"
+
+- name: Install Docker stable community edition
+  package:
+    name: "{{ }}"
 
 - include: tunning.yml

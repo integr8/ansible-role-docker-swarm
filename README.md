@@ -1,4 +1,4 @@
-Docker Swarm Manager
+Docker Swarm
 =========
 
 Ansible role to install a Docker Swarm Manager node
