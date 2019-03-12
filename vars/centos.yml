@@ -2,3 +2,23 @@
 pip_packages:
   - epel-release
   - python-pip
+
+pip_docker_sni:
+  - pyopenssl
+  - ndg-httpsclient
+  - pyasn1
+
+docker_old_packages:
+  - docker
+  - docker-client
+  - docker-client-latest
+  - docker-common
+  - docker-latest
+  - docker-latest-logrotate
+  - docker-logrotate
+  - docker-engine
+
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io

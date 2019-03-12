@@ -3,7 +3,10 @@
   include_vars: "{{ ansible_distribution | lower }}.yml"
 
 - name: Creating docker user
-  user: name=docker
+  user: 
+    name: docker
+    groups: "docker"
+    append: true
 
 - name: Install pip and dependencies
   package:
@@ -16,8 +19,37 @@
     name: "docker-py"
     state: "present"
 
-- name: Install Docker stable community edition
+- name: Remove Docker old versions
   package:
-    name: "{{ }}"
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ docker_old_packages }}"
 
+- name: Install Docker repository
+  get_url:
+    url: 'https://download.docker.com/linux/centos/docker-ce.repo'
+    dest: '/etc/yum.repos.d/docker-ce.repo'
+    owner: root
+    group: root
+    mode: 0644
+  when: ansible_distribution | lower == 'centos' 
+
+- name: Install Docker engine
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ docker_packages }}"
+
+- name: Install Docker SNI dependencies
+  pip:
+    name: "{{ pip_docker_sni }}"
+    state: "present"
+
+- name: Enable docker service
+  service:
+    name: docker
+    enabled: true
+    state: started
+
+- include: swarm.yml
 - include: tunning.yml
