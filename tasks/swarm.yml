@@ -52,15 +52,5 @@
     docker_manager_address: "{{hostvars[groups['integr8-docker-swarm-manager'][0]]['docker_manager_address'] }}"
   when: "inventory_hostname != groups['integr8-docker-swarm-manager'][0]"
 
-# This works 
 - shell: "docker swarm join --token {{ worker_token }} {{ docker_manager_address }}"
-  when: "inventory_hostname != groups['integr8-docker-swarm-manager'][0]"
-
-# This doens't work
-- name: Add nodes
-  docker_swarm:
-    advertise_addr: "{{ docker_swarm_addr }}"
-    join_token: "{{ worker_token }}"
-    remote_addrs: 
-      - "{{ docker_manager_address }}"
   when: "inventory_hostname != groups['integr8-docker-swarm-manager'][0]"
