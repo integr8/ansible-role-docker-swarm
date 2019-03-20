@@ -1,4 +1,24 @@
 ---
+- name: teste
+  block:
+  - firewalld:
+      port: "{{ docker_swarm_port }}/tcp"
+      permanent: yes
+      state: enabled
+  - firewalld:
+      port: 7946/tcp
+      permanent: yes
+      state: enabled
+  - firewalld:
+      port: 7946/udp
+      permanent: yes
+      state: enabled
+  - firewalld:
+      port: 4789/udp
+      permanent: yes
+      state: enabled
+  - command: firewall-cmd --reload
+
 - name: Create a Docker Swarm network
   docker_network:
     name: "{{ docker_swarm_network_name }}"
@@ -11,14 +31,36 @@
       gateway: "{{ docker_swarm_network | ipaddr('net') | ipaddr('1') | ipaddr('ip') }}"
   when: docker_swarm_network is defined and docker_swarm_network | ipaddr('net')
 
-- name: Check if "Swarm Mode" is enabled.
-  shell: docker info
-  changed_when: False
-  register: docker_info
-
 - name: Enable Docker swarm mode
-  shell: docker swarm init
-        --listen-addr {{ docker_swarm_addr }}:{{ docker_swarm_port }}
-        --advertise-addr {{ docker_swarm_addr }}
-  when: "docker_info.stdout.find('Swarm: active') == -1
-    and inventory_hostname == groups['integr8-docker-swarm-manager'][0]"
+  docker_swarm:
+    state: present
+    advertise_addr: "{{ docker_swarm_addr }}"
+  when: "inventory_hostname == groups['integr8-docker-swarm-manager'][0]"
+  register: swarm_info
+
+- name: Declare facts of first manager
+  set_fact:
+    manager_token: "{{ swarm_info.swarm_facts.JoinTokens.Manager }}"
+    worker_token: "{{ swarm_info.swarm_facts.JoinTokens.Worker }}"
+    docker_manager_address: "{{ docker_swarm_addr }}:{{ docker_swarm_port }}"
+  when: "inventory_hostname == groups['integr8-docker-swarm-manager'][0]"
+
+- name: Distribute the facts
+  set_fact:
+    manager_token: "{{hostvars[groups['integr8-docker-swarm-manager'][0]]['manager_token'] }}"
+    worker_token: "{{hostvars[groups['integr8-docker-swarm-manager'][0]]['worker_token'] }}"
+    docker_manager_address: "{{hostvars[groups['integr8-docker-swarm-manager'][0]]['docker_manager_address'] }}"
+  when: "inventory_hostname != groups['integr8-docker-swarm-manager'][0]"
+
+# This works 
+- shell: "docker swarm join --token {{ worker_token }} {{ docker_manager_address }}"
+  when: "inventory_hostname != groups['integr8-docker-swarm-manager'][0]"
+
+# This doens't work
+- name: Add nodes
+  docker_swarm:
+    advertise_addr: "{{ docker_swarm_addr }}"
+    join_token: "{{ worker_token }}"
+    remote_addrs: 
+      - "{{ docker_manager_address }}"
+  when: "inventory_hostname != groups['integr8-docker-swarm-manager'][0]"

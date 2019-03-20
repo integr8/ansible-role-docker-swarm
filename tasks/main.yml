@@ -2,22 +2,21 @@
 - name: Include distribuition specific variables
   include_vars: "{{ ansible_distribution | lower }}.yml"
 
-- name: Creating docker user
-  user: 
-    name: docker
-    groups: "docker"
-    append: true
-
 - name: Install pip and dependencies
   package:
     name: "{{ item }}"
     state: present
   with_items: "{{ pip_packages }}"
 
-- name: Install docker-py pip package
+- name: Upgrade pip
   pip:
-    name: "docker-py"
-    state: "present"
+    name: pip
+    state: latest
+
+- name: Install docker pip package
+  pip:
+    name: "docker"
+    state: "latest"
 
 - name: Remove Docker old versions
   package:
@@ -44,6 +43,12 @@
   pip:
     name: "{{ pip_docker_sni }}"
     state: "present"
+
+- name: Creating docker user
+  user: 
+    name: docker
+    groups: "docker"
+    append: true
 
 - name: Enable docker service
   service:
