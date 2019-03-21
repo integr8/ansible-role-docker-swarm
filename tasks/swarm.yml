@@ -1,5 +1,5 @@
 ---
-- name: teste
+- name: Enable ports on firewall
   block:
   - firewalld:
       port: "{{ docker_swarm_port }}/tcp"
@@ -18,18 +18,6 @@
       permanent: yes
       state: enabled
   - command: firewall-cmd --reload
-
-- name: Create a Docker Swarm network
-  docker_network:
-    name: "{{ docker_swarm_network_name }}"
-    driver_options:
-      com.docker.network.bridge.enable_icc: "false"
-      com.docker.network.bridge.enable_ip_masquerade: "true"
-      com.docker.network.bridge.name: "{{ docker_swarm_network_name }}"
-    ipam_options:
-      subnet: "{{ docker_swarm_network }}"
-      gateway: "{{ docker_swarm_network | ipaddr('net') | ipaddr('1') | ipaddr('ip') }}"
-  when: docker_swarm_network is defined and docker_swarm_network | ipaddr('net')
 
 - name: Enable Docker swarm mode
   docker_swarm:
@@ -54,3 +42,17 @@
 
 - shell: "docker swarm join --token {{ worker_token }} {{ docker_manager_address }}"
   when: "inventory_hostname != groups['integr8-docker-swarm-manager'][0]"
+
+- name: Create a Docker Swarm network
+  docker_network:
+    name: "{{ docker_swarm_network_name }}"
+    driver: overlay
+    driver_options:
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.bridge.name: "{{ docker_swarm_network_name }}"
+      com.docker.network.enable_ipv6: "true"
+    ipam_options:
+      subnet: "{{ docker_swarm_network }}"
+      gateway: "{{ docker_swarm_network | ipaddr('net') | ipaddr('1') | ipaddr('ip') }}"
+  when: docker_swarm_network is defined and docker_swarm_network | ipaddr('net') and inventory_hostname == groups['integr8-docker-swarm-manager'][0]
