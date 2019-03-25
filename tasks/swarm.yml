@@ -1,19 +1,23 @@
 ---
 - name: Enable ports on firewall
   block:
-  - firewalld:
+  - name: Enable cluster management communication TCP port
+    firewalld:
       port: "{{ docker_swarm_port }}/tcp"
       permanent: yes
       state: enabled
-  - firewalld:
+  - name: Enable node communication TCP port
+    firewalld:
       port: 7946/tcp
       permanent: yes
       state: enabled
-  - firewalld:
+  - name: Enable node communication UDP port
+    firewalld:
       port: 7946/udp
       permanent: yes
       state: enabled
-  - firewalld:
+  - name: Enable overlay network UDP port
+    firewalld:
       port: 4789/udp
       permanent: yes
       state: enabled
