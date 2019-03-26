@@ -1,10 +1,12 @@
 ---
 - name: Cleaning Up
   block:
-  - service:
+  - name: Stop Docker daemon
+    service:
       name: docker
       state: stopped
-  - file:
+  - name: Remove Docker metadata directory
+    file:
       path: /var/lib/docker
       state: absent
   tags:
@@ -22,12 +24,12 @@
 - name: Upgrade pip
   pip:
     name: pip
-    state: latest
+    state: "19.0.3"
 
 - name: Install docker pip package
   pip:
     name: "docker"
-    state: "latest"
+    state: "3.7.1"
 
 - name: Remove Docker old versions
   package:
@@ -42,7 +44,7 @@
     owner: root
     group: root
     mode: 0644
-  when: ansible_distribution | lower == 'centos' 
+  when: ansible_distribution | lower == 'centos'
 
 - name: Install Docker engine
   package:
@@ -56,7 +58,7 @@
     state: "present"
 
 - name: Creating docker user
-  user: 
+  user:
     name: docker
     groups: "docker"
     append: true
