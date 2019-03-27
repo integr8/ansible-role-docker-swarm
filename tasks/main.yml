@@ -24,12 +24,14 @@
 - name: Upgrade pip
   pip:
     name: pip
-    state: "19.0.3"
+    state: present
+    version: "19.0.3"
 
 - name: Install docker pip package
   pip:
     name: "docker"
-    state: "3.7.1"
+    state: present
+    version: "3.7.1"
 
 - name: Remove Docker old versions
   package:
