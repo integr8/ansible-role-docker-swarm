@@ -64,7 +64,7 @@
       com.docker.network.bridge.enable_ip_masquerade: "true"
       com.docker.network.bridge.name: "{{ docker_swarm_network_name }}"
       com.docker.network.enable_ipv6: "true"
-    ipam_options:
-      subnet: "{{ docker_swarm_network }}"
-      gateway: "{{ docker_swarm_network | ipaddr('net') | ipaddr('1') | ipaddr('ip') }}"
+    ipam_config:
+      - subnet: "{{ docker_swarm_network }}"
+        gateway: "{{ docker_swarm_network | ipaddr('net') | ipaddr('1') }}"
   when: docker_swarm_network is defined and docker_swarm_network | ipaddr('net') and inventory_hostname == groups['integr8-docker-swarm-manager'][0]

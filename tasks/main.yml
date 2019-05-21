@@ -59,6 +59,11 @@
     name: "{{ pip_docker_sni }}"
     state: "present"
 
+- name: Install Docker Swarm depedencies
+  pip:
+    name: "{{ pip_docker_swarm }}"
+    state: "present"
+
 - name: Creating docker user
   user:
     name: docker

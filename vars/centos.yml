@@ -8,6 +8,10 @@ pip_docker_sni:
   - ndg-httpsclient
   - pyasn1
 
+pip_docker_swarm:
+  - jsondiff
+  - pyyaml
+
 docker_old_packages:
   - docker
   - docker-client
