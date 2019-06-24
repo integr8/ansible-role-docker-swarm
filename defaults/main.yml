@@ -1,6 +1,10 @@
 ---
-docker_swarm_network_name: integr8
-docker_swarm_network: 10.0.0.0/24
 docker_swarm_interface: "{{ ansible_enp0s8['device'] }}"
 docker_swarm_addr: "{{ hostvars[inventory_hostname]['ansible_' + docker_swarm_interface]['ipv4']['address'] }}"
 docker_swarm_port: 2377
+
+docker_networks:
+  - name: integr8_tools
+    network: 10.0.0.0/24
+  - name: integr8_monitoring
+    network: 10.0.1.0/24
